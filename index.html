@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Form</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .form-container {
+            width: 50%;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="form-container">
+    <h2>Invoice Form</h2>
+    <form id="invoiceForm">
+        <div class="form-group">
+            <label for="awbNo">AWB No.</label>
+            <input type="text" id="awbNo" name="awbNo" required>
+        </div>
+        <div class="form-group">
+            <label for="consignee">Consignee</label>
+            <input type="text" id="consignee" name="consignee" required>
+        </div>
+        <div class="form-group">
+            <label for="destination">Destination</label>
+            <input type="text" id="destination" name="destination" required>
+        </div>
+        <div class="form-group">
+            <label for="net">Net</label>
+            <input type="text" id="net" name="net" required>
+        </div>
+        <div class="form-group">
+            <label for="networkNo">Network No.</label>
+            <input type="text" id="networkNo" name="networkNo" required>
+        </div>
+        <div class="form-group">
+            <label for="ds">D/S</label>
+            <input type="text" id="ds" name="ds" required>
+        </div>
+        <div class="form-group">
+            <label for="pcs">Pcs</label>
+            <input type="number" id="pcs" name="pcs" required>
+        </div>
+        <div class="form-group">
+            <label for="weight">Weight (Kg)</label>
+            <input type="number" id="weight" name="weight" required>
+        </div>
+        <div class="form-group">
+            <label for="amount">Amount ($)</label>
+            <input type="number" id="amount" name="amount" required oninput="calculateTotal()">
+        </div>
+        <div class="form-group">
+            <label for="covidCharge">COVID Charge ($)</label>
+            <input type="number" id="covidCharge" name="covidCharge" value="0" oninput="calculateTotal()">
+        </div>
+        <div class="form-group">
+            <label for="fuelCharge">Fuel Charge ($)</label>
+            <input type="number" id="fuelCharge" name="fuelCharge" value="0" oninput="calculateTotal()">
+        </div>
+        <div class="form-group">
+            <label for="grandTotal">Grand Total ($)</label>
+            <input type="number" id="grandTotal" name="grandTotal" readonly>
+        </div>
+        <button type="button" onclick="generatePDF()">Generate PDF</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        // Automatically calculate total when the page loads
+        calculateTotal();
+    });
+
+    function calculateTotal() {
+        let amount = parseFloat(document.getElementById('amount').value) || 0;
+        let covidCharge = parseFloat(document.getElementById('covidCharge').value) || 0;
+        let fuelCharge = parseFloat(document.getElementById('fuelCharge').value) || 0;
+
+        let grandTotal = amount + covidCharge + fuelCharge;
+        document.getElementById('grandTotal').value = grandTotal.toFixed(2);
+    }
+
+    function generatePDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        let date = new Date().toLocaleDateString();
+
+        doc.text("Invoice", 20, 20);
+        doc.text("Date: " + date, 20, 30);
+
+        doc.text("AWB No.: " + document.getElementById('awbNo').value, 20, 40);
+        doc.text("Consignee: " + document.getElementById('consignee').value, 20, 50);
+        doc.text("Destination: " + document.getElementById('destination').value, 20, 60);
+        doc.text("Net: " + document.getElementById('net').value, 20, 70);
+        doc.text("Network No.: " + document.getElementById('networkNo').value, 20, 80);
+        doc.text("D/S: " + document.getElementById('ds').value, 20, 90);
+        doc.text("Pcs: " + document.getElementById('pcs').value, 20, 100);
+        doc.text("Weight: " + document.getElementById('weight').value + " Kg", 20, 110);
+        doc.text("Amount: $" + document.getElementById('amount').value, 20, 120);
+        doc.text("COVID Charge: $" + document.getElementById('covidCharge').value, 20, 130);
+        doc.text("Fuel Charge: $" + document.getElementById('fuelCharge').value, 20, 140);
+        doc.text("Grand Total: $" + document.getElementById('grandTotal').value, 20, 150);
+
+        doc.save("invoice.pdf");
+    }
+</script>
+
+</body>
+</html>
